@@ -3,13 +3,12 @@
 #include <math.h>
 #include <mpi.h>
 
-
-
 int main(int argc, char **argv)
 {
   int procID;
   int numOfProcs = 4; //used instead 'p' variable. easier to refactor and to understand in the future
   int numOfSteps = 0; //used instead 'n' variable
+  double start_t, end_t;
   
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &numOfProcs);
@@ -18,14 +17,15 @@ int main(int argc, char **argv)
   //process 0 gets required elements of Leibniz Series
   if (!procID)
   { 
-    printf("Number of numOfSteps: ");
+    printf("Enter n: ");
     fflush(stdout);
     while (numOfSteps < 3)
     {
       scanf("%d", &numOfSteps);
     }
   }
-
+  
+  start_t = MPI_Wtime();
   MPI_Bcast(&numOfSteps, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   int count = numOfSteps / numOfProcs;
@@ -39,11 +39,11 @@ int main(int argc, char **argv)
   }
 
   double processSum = 0, sumOfSeries = 0;
-  sleep(0.1);
-  printf("\nProcess %d calculates %d series elements, start = %d end = %d\n", procID, end - start, start, end);
+  //sleep(0.1);
+  MPI_Barrier(MPI_COMM_WORLD);
+  //printf("\nProcess %d calculates %d series elements, start = %d end = %d\n", procID, end - start, start, end);
   for (int i = start; i < end; ++i)
   {
-
     processSum += pow(-1, i) / (2 * i + 1);
   }
 
@@ -57,4 +57,6 @@ int main(int argc, char **argv)
   }
 
   MPI_Finalize();
+  end_t = MPI_Wtime();
+  if(!procID) printf("\nTIME OF EXECUTION %.16lf\n", end_t - start_t);
 }
