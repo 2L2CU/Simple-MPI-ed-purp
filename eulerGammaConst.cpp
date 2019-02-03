@@ -63,6 +63,10 @@ int main(int argc, char **argv)
   }
 
   MPI_Finalize();
-  
-  if(!procID) printf("\nTIME OF EXECUTION %.16lf\n", end_t - start_t);
+
+  if (!procID)
+  {
+    end_t  = MPI_Wtime();
+    printf("\n TIME OF EXECUTION %.16lf\n", end_t - start_t);
+  }
 }
